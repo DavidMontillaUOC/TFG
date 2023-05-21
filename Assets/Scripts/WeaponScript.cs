@@ -13,7 +13,7 @@ public class WeaponScript : MonoBehaviour
     public float staminaCost = 10f;
     public float staminaRegenRate = 2f;
     public float currentStamina = 2f;
-     public Slider staminaBar;
+    public Slider staminaBar;
 
     public Transform circleOrigin;
     public float radius;
@@ -50,6 +50,20 @@ public class WeaponScript : MonoBehaviour
         StartCoroutine(Cooldown());
     }
 
+    public void SecondaryAttack() 
+    {
+        if (currentStamina < staminaCost) return;
+        if (attackOnCd) return;
+
+        IsAttacking = true;
+        animator.SetTrigger("SecondaryAttack");
+        attackOnCd = true;
+        currentStamina -= staminaCost;
+        staminaBar.value = currentStamina;
+        StartCoroutine(Cooldown());
+    }
+
+
     private IEnumerator Cooldown()
     {
         yield return new WaitForSeconds(cooldown);
@@ -69,11 +83,15 @@ public class WeaponScript : MonoBehaviour
     {
         foreach (Collider2D collider in Physics2D.OverlapCircleAll(circleOrigin.position, radius))
         {
-            //Debug.Log(collider.name);
-            EnemyHealth health;
-            if(health = collider.GetComponent<EnemyHealth>())
+            if (!collider.isTrigger) // Check if collider is not a trigger
             {
-                health.GetHit(5, transform.parent.gameObject);
+
+                //Debug.Log(collider.name);
+                EnemyHealth health;
+                if (health = collider.GetComponent<EnemyHealth>())
+                {
+                    health.GetHit(5, transform.parent.gameObject);
+                }
             }
         }
     }

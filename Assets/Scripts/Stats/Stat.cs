@@ -21,11 +21,11 @@ public class Stat
     }
 
     public void augmentValue(){
-        currentValue = currentValue++;
+        currentValue++;
     }
 
     public void decreseValue(){
-        currentValue = currentValue--;
+        currentValue--;
     }
 
 

@@ -11,9 +11,11 @@ public class EnemyHealth : MonoBehaviour
     public Text DamageNumber;
     public Text DamageNumberPrefab;
     public Transform DamageNumberSpawnPoint;
+    [SerializeField]
     public CharacterStats characterStats;
 
     public UnityEvent<GameObject> OnHitWithReference;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,19 +36,23 @@ public class EnemyHealth : MonoBehaviour
 
     }
 
-public void GetHit(int amount, GameObject sender)
+    public void GetHit(int amount, GameObject sender)
     {
         if(sender.layer == gameObject.layer) return;
 
         else
         {
-            amount = amount + characterStats.strenght.getValue();
+            amount = amount + characterStats.strength.getValue();
             //Text DamageNumber = Instantiate(DamageNumberPrefab, DamageNumberSpawnPoint.position, Quaternion.identity);
             //amageNumber.text = amount.ToString();
-            
             Debug.Log(amount);
             OnHitWithReference?.Invoke(sender);
             StartCoroutine(FlashColorOnHit());
+            currentHealth -= amount;
+            if (currentHealth <= 0)
+            {
+                DestroyEntity();
+            }
         }
     }
 
@@ -58,4 +64,10 @@ public void GetHit(int amount, GameObject sender)
         yield return new WaitForSeconds(0.1f);
         renderer.material.color = originalColor;
     }
+
+    private void DestroyEntity()
+    {
+        Destroy(gameObject);
+    }
+
 }

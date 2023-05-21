@@ -8,7 +8,9 @@ public class AnimationHelper : MonoBehaviour
 
     public UnityEvent OnAttack;
 
+    public UnityEvent OnSecondAttack;
 
+    public UnityEvent animationTriggered;
 
     // Start is called before the first frame update
     void Start()
@@ -26,4 +28,15 @@ public class AnimationHelper : MonoBehaviour
     {
         OnAttack?.Invoke();
     }
+
+    public void TriggerOnAttack()
+    {
+        animationTriggered?.Invoke();
+    }
+
+    public void TriggerOnSecondAttack()
+    {
+        animationTriggered?.Invoke();
+    }
+
 }

@@ -7,7 +7,7 @@ public class movimiento : MonoBehaviour
 {
     [SerializeField] private float movVel;
     [SerializeField] private Vector2 direction;
-    [SerializeField] private InputActionReference attack;
+    [SerializeField] private InputActionReference attack, secondaryAttack, pointerPosition;
 
     private Rigidbody2D rb2D;
 
@@ -21,8 +21,16 @@ public class movimiento : MonoBehaviour
 
     private Transform weapon;
 
+    public Vector2 cursorPosition;
+
+    private WeaponManagerScript weaponHolder;
 
     // Start is called before the first frame update
+
+    private void Awake() {
+        weaponHolder = GetComponentInChildren<WeaponManagerScript> ();
+    }
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -48,6 +56,9 @@ public class movimiento : MonoBehaviour
 
         }
 
+        cursorPosition = GetCursorPosition();
+        weaponHolder.cursorPosition = cursorPosition;
+
         direction = new Vector2(xMovement,yMovement ).normalized;
     }
 
@@ -65,6 +76,10 @@ public class movimiento : MonoBehaviour
         {
             attack.action.performed += SwingWeapon;
         }
+        if (secondaryAttack != null)
+        {
+            secondaryAttack.action.performed += SecondaryAttack;
+        }
     }
 
     private void OnDisable()
@@ -73,22 +88,30 @@ public class movimiento : MonoBehaviour
         {
             attack.action.performed -= SwingWeapon;
         }
+        if (secondaryAttack != null)
+        {
+            secondaryAttack.action.performed -= SecondaryAttack;
+        }
     }
 
     private void SwingWeapon(InputAction.CallbackContext obj)
     {
         weaponScript.Attack();
-         float angle = Mathf.Atan2(animator.GetFloat("LastY"), animator.GetFloat("LastX")) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(animator.GetFloat("LastY"), animator.GetFloat("LastX")) * Mathf.Rad2Deg;
         weaponScript.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        StartCoroutine(ResetWeaponPosition());
-}
+    }
 
-private IEnumerator ResetWeaponPosition()
-{
-    yield return new WaitForSeconds(weaponScript.attackAnimationDuration);
+    private void SecondaryAttack(InputAction.CallbackContext obj)
+    {
+        // Perform secondary attack logic here
+        weaponScript.SecondaryAttack();
+    }
 
-    weaponScript.transform.localRotation = Quaternion.identity;
-    weaponScript.transform.localPosition = Vector3.zero;
-}
+
+    private Vector2 GetCursorPosition() {
+        Vector3 mousePos = pointerPosition.action.ReadValue<Vector2>();
+        mousePos.z = Camera.main.nearClipPlane;
+        return Camera.main.ScreenToWorldPoint(mousePos);
+    }
 
 }
